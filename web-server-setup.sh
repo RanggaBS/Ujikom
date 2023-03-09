@@ -23,14 +23,14 @@ IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 #echo ''
 
 # Do apt commands
-echo "\n\nMengupdate paket-paket.."
+echo "\n\nMengupdate paket-paket..\n\n\tSabar masbro.."
 apt update > /dev/null 2>&1
 
 #echo "\nUpgrading packages.."
 apt upgrade > /dev/null 2>&1
 
 # Install packages
-echo "\n\nMenginstall:\n- bind9\n- apache2\n- mariadb-server\n- php\n- php-mysql\n- wget\n- unzip\n\n\tSabar bro..\n\tOrang sabar disayang Tuhan. ;)\n"
+echo "\n\nMenginstall:\n- bind9\n- apache2\n- mariadb-server\n- php\n- php-mysql\n- wget\n- unzip\n\n\tSabar maszeh..\n\tJangan di cancel.\n"
 apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null 2>&1
 
 # Configure DNS
