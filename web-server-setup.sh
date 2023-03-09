@@ -8,6 +8,15 @@ echo "
 
 "
 
+# Update repository
+echo "\nMengupdate repository.."
+sed -i "s/deb/#deb/g" /etc/apt/sources.list
+echo "
+deb http://kartolo.sby.datautama.net.id/debian/ buster main contrib non-free
+deb http://kartolo.sby.datautama.net.id/debian/ buster-updates main contrib non-free
+deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main contrib non-free
+" >> /etc/apt/sources.list
+
 # Get IP address
 echo "\nMendapatkan alamat IP.."
 IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
