@@ -18,7 +18,7 @@ deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main con
 " >> /etc/apt/sources.list
 
 # Get IP address
-echo "\nMendapatkan alamat IP.."
+echo "\n\nMendapatkan alamat IP.."
 IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 #echo ''
 
@@ -31,7 +31,7 @@ apt upgrade > /dev/null 2>&1
 
 # Install packages
 echo "\n\nMenginstall:\n- bind9\n- apache2\n- mariadb-server\n- php\n- php-mysql\n- wget\n- unzip\n\n\tSabar bro..\n\tOrang sabar disayang Tuhan. ;)\n"
-apt install bind9 apache2 mariadb-server php php-mysql wget unzip > /dev/null 2>&1
+apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null 2>&1
 
 # Configure DNS
 cd /etc/bind/
