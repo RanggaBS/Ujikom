@@ -41,7 +41,10 @@ cd /etc/bind/
 	cp db.local db.dns_maju
 
 	echo "
-$TTL    604800
+;
+; BIND data file for local loopback interface
+;
+\$TTL    604800
 @       IN      SOA     localhost. root.localhost. (
                               2         ; Serial
                          604800         ; Refresh
@@ -53,7 +56,7 @@ $TTL    604800
 @	IN	A	$IP
 " > db.dns_maju
 
-	echo -e "
+	echo "
 //
 // Do any local configuration here
 //
@@ -68,7 +71,7 @@ zone \"$DNS\" {
 };
 	" > named.conf.local
 
-	sed -i "s/-e//g" named.conf.local
+	#sed -i "s/-e//g" named.conf.local
 
 	service bind9 restart
 
