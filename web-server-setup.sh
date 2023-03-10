@@ -1,17 +1,33 @@
 #!/bin/bash
 
 echo "
-
 ----------------------------------
 # SCRIPT AUTO INSTALL WEB SERVER #
 ----------------------------------
 
 "
 
+echo "
+# Mengedit konfigurasi bawaan service di bawah ini:
+#	[-] bind9
+#		- db.local (/etc/bind/db.local)
+#		- named.conf.default-zone (/etc/bind/named.conf.default-zone)
+#	[-] apache2
+#		- 000-default.conf (/etc/apache2/000-default.conf)
+Edit konfigurasi bawaan? (y/n): "
+read EDIT_KONFIGURASI_BAWAAN
+EDIT_KONFIGURASI_BAWAAN=$(echo "$EDIT_KONFIGURASI_BAWAAN" | tr '[:upper:]' '[:lower:]')
+EDIT_KONFIGURASI_BAWAAN=$( [ "$EDIT_KONFIGURASI_BAWAAN" = "y" ] && echo true || echo false )
+
 # Update repository
 echo "\nMengupdate repository.."
-sed -i "s/deb/#deb/g" /etc/apt/sources.list
+if ! [ -e /etc/apt/backup_sources.list ]; then
+	cp /etc/apt/sourcest.list /etc/apt/backup_sources.list;
+fi
+#sed -i "s/deb/#deb/g" /etc/apt/sources.list
+sed -i '/^#/! s/^/# /' /etc/apt/sources.list
 echo "
+# Repo
 deb http://kartolo.sby.datautama.net.id/debian/ buster main contrib non-free
 deb http://kartolo.sby.datautama.net.id/debian/ buster-updates main contrib non-free
 deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main contrib non-free
@@ -19,8 +35,8 @@ deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main con
 
 # Get IP address
 echo "\n\nMendapatkan alamat IP.."
-IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-#echo ''
+NETWORK_ADAPTER_NAME=$(ip link | awk -F': ' '{print $2}' | grep -v lo)
+IP=$(ip -4 addr show $NETWORK_ADAPTER_NAME | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
 # Do apt commands
 echo "\n\nMengupdate paket-paket..\n\n\tSabar masbro.."
@@ -35,10 +51,32 @@ apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null
 
 # Configure DNS
 cd /etc/bind/
-	echo "\nMasukkan nama DNS: "
+	echo "\nMasukkan nama domain: "
 	read DNS;
 
-	cp db.local db.dns_maju
+	if [ $EDIT_KONFIGURASI_BAWAAN == "true" ]; then
+		#sed -i '12,14 s/^/;/' /etc/bind/db.local;
+		cp db.local db.local_backup
+		echo "
+;
+; BIND data file for local loopback interface
+;
+\$TTL    604800
+@       IN      SOA     localhost. root.localhost. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@	IN	NS	$DNS.
+@	IN	A	$IP
+" > db.local;
+		cp named.conf.default-zones named.conf.default-zones_backup
+		sed -i "10 s/.*/zone \"$DNS\" {/" named.conf.default-zones
+		sed -i "15 s/.*/zone \"x.x.x.in-addr.arpa\" {/" named.conf.default-zones	# TODO
+	else
+		cp db.local db.dns_forward
 
 	echo "
 ;
@@ -54,7 +92,7 @@ cd /etc/bind/
 ;
 @	IN	NS	$DNS.
 @	IN	A	$IP
-" > db.dns_maju
+" > db.dns_forward;
 
 	echo "
 //
@@ -67,13 +105,14 @@ cd /etc/bind/
 
 zone \"$DNS\" {
 	type master;
-	file \"/etc/bind/db.dns_maju\";
+	file \"/etc/bind/db.dns_forward\";
 };
 	" > named.conf.local
 
 	#sed -i "s/-e//g" named.conf.local
 
-	service bind9 restart
+	#service bind9 restart
+	systemctl restart bind9
 
 # Add virtual host
 cd /etc/apache2/sites-available/
@@ -83,12 +122,14 @@ cd /etc/apache2/sites-available/
 	sed -i "s/html/wordpress/g" $DNS.conf
 
 # Enable the user's virtual host
-a2ensite $DNS.conf
+#a2ensite $DNS.conf > /dev/null 2>&1
+a2ensite $DNS.conf -q
 
 # Disable apache default virtual host
-a2dissite 000-default.conf
+#a2dissite 000-default.conf /dev/null 2>&1
+a2dissite 000-default.conf -q
 
-# Create MySQL database
+# Prompt user
 echo "\n\nMasukkan nama database: "
 read MySQL_DB_NAME
 
@@ -99,21 +140,21 @@ echo "\n\nMasukkan password user MySQL: "
 read MySQL_USER_PASSWORD
 
 echo ''
-# Execute commands
-mysql -e "CREATE DATABASE $MySQL_DB_NAME;"
-mysql -e "CREATE USER '$MySQL_USER_NAME'@'localhost' IDENTIFIED BY '$MySQL_USER_PASSWORD';"
+# Create database & user
+mysql -e "CREATE DATABASE IF NOT EXIST $MySQL_DB_NAME;"
+mysql -e "CREATE USER IF NOT EXIST '$MySQL_USER_NAME'@'localhost' IDENTIFIED BY '$MySQL_USER_PASSWORD';"
 mysql -e "GRANT ALL PRIVILEGES ON *.* TO '$MySQL_USER_NAME'@'localhost';"
 mysql -e "FLUSH PRIVILEGES;"
 
-# Download WordPress file installer in the background
 cd /home/
 	if ! [ -d /home/Downloads ]; then
 		mkdir /home/Downloads
 	fi
 	cd Downloads/
-		echo "\n\nMendownload file installer WordPress.."
-		wget wordpress.org/latest.zip -q --show-progress -O wordpress_installer.zip
-		#echo -e "Started downloading WordPress installer in the background\n\n"
+		if ! [ -e /home/Downloads/wordpress_installer.zip ]; then
+			echo "\n\nMendownload file installer WordPress.."
+			wget wordpress.org/latest.zip -q --show-progress -O wordpress_installer.zip
+		fi
 
 # Extract WordPress installer file
 cd /home/Downloads/
@@ -131,7 +172,8 @@ cd /home/Downloads/
 	cp -r -f wordpress/* /var/www/wordpress/
 
 # Restart required to apply configuration
-service apache2 restart
+#service restart apache2
+systemctl restart apache2
 
 echo "
 -----------
