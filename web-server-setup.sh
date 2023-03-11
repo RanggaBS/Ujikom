@@ -71,7 +71,7 @@ cd /etc/bind/
 		# DNS reverse
 		cp db.127 db.127_backup
 		sed -i "s/localhost/$DNS/g" db.127
-		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS" db.127
+		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS/" db.127
 		
 		# DNS zone
 		cp named.conf.default-zones named.conf.default-zones_backup
@@ -91,7 +91,7 @@ cd /etc/bind/
 		# DNS reverse
 		cp db.127 db.dns_reverse
 		sed -i "s/localhost/$DNS/g" db.dns_reverse
-		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS" db.dns_reverse
+		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS/" db.dns_reverse
 		
 		# DNS zone
 		echo -e "\n\n\n\n\n\n" >> named.conf.local
