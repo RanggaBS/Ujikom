@@ -84,8 +84,8 @@ cd /etc/bind/
 		
 		sed -i "10 s/.*/zone \"$DNS\" {/" named.conf.default-zones
 		sed -i "15 s/.*/zone \"$REVERSED_IP.in-addr.arpa\" {/" named.conf.default-zones
-		sed -i "16 s/.*/\ttype master;/" named.conf.default-zones
-		sed -i "17 s/.*/\tfile \"/etc/bind/db.127\";/" named.conf.default-zones
+		#sed -i "16 s/.*/\ttype master;/" named.conf.default-zones
+		#sed -i "17 s/.*/\tfile \"\/etc\/bind\/db.127\";/" named.conf.default-zones
 	else
 		# Create backup file
 		if ! [ -e /etc/bind/db.dns_forward ]; then
@@ -107,7 +107,7 @@ cd /etc/bind/
 		echo -e "\n\n\n\n\n\n" >> named.conf.local
 		sed -i "9 s/.*/zone "$DNS" {/" named.conf.local
 		sed -i "10 s/.*/\ttype master;/" named.conf.local
-		sed -i "11 s/.*/\tfile \"/etc/bind/db.dns_forward\";/" named.conf.local
+		sed -i "11 s/.*/\tfile \"\/etc\/bind\/db.dns_forward\";/" named.conf.local
 		sed -i "12 s/.*/};/" named.conf.local
 	fi
 	
