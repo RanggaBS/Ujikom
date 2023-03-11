@@ -57,13 +57,14 @@ cd /etc/bind/
 	
 	# Get reversed IP address
 	#REVERSED_IP=$(echo $IP | awk -F. '{print $4"."$3"."$2"."$1}')	# Full 4 octet
-	REVERSED_IP=$(echo $IP | awk -F. "{print $3'.'$2'.'$1}")	# Only first 3 octet
-	IP_LAST_OCTET=$(echo $IP | awk -F. "{print $4}")
+	REVERSED_IP=$(echo $IP | awk -F. '{print $3"."$2"."$1}')	# Only first 3 octet
+	IP_LAST_OCTET=$(echo $IP | awk -F. '{print $4}')
 	
 	if [ $EDIT_KONFIGURASI_BAWAAN = true ]; then
 		# DNS forward
 		#sed -i '12,14 s/^/;/' /etc/bind/db.local;
 		cp db.local db.local_backup
+		
 		
 		sed -i "13 s/.*/@\tIN\tA\t$IP/" db.local
 		sed -i "s/localhost/$DNS/g" db.local
