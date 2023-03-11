@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Author: Rangga Buana Saputra
+
 echo "
 ----------------------------------
 # SCRIPT AUTO INSTALL WEB SERVER #
