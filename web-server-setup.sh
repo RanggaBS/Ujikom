@@ -4,17 +4,16 @@ echo "
 ----------------------------------
 # SCRIPT AUTO INSTALL WEB SERVER #
 ----------------------------------
-
 "
 
 echo "
-# Mengedit konfigurasi bawaan service di bawah ini:
-#	[-] bind9
-#		- db.local (/etc/bind/db.local)
-#		- named.conf.default-zone (/etc/bind/named.conf.default-zone)
-#	[-] apache2
-#		- 000-default.conf (/etc/apache2/000-default.conf)
-Edit konfigurasi bawaan? (y/n): "
+Mengedit konfigurasi bawaan service di bawah ini:
+[-] bind9
+	- db.local (/etc/bind/db.local)
+	- named.conf.default-zone (/etc/bind/named.conf.default-zone)
+[-] apache2
+	- 000-default.conf (/etc/apache2/000-default.conf)"
+echo -en "\nEdit konfigurasi bawaan? (y/n): "
 read EDIT_KONFIGURASI_BAWAAN
 EDIT_KONFIGURASI_BAWAAN=$(echo "$EDIT_KONFIGURASI_BAWAAN" | tr '[:upper:]' '[:lower:]')
 EDIT_KONFIGURASI_BAWAAN=$( [ "$EDIT_KONFIGURASI_BAWAAN" = "y" ] && echo true || echo false )
@@ -22,7 +21,7 @@ EDIT_KONFIGURASI_BAWAAN=$( [ "$EDIT_KONFIGURASI_BAWAAN" = "y" ] && echo true || 
 # Update repository
 echo "\nMengupdate repository.."
 if ! [ -e /etc/apt/backup_sources.list ]; then
-	cp /etc/apt/sourcest.list /etc/apt/backup_sources.list;
+	cp /etc/apt/sources.list /etc/apt/backup_sources.list;
 fi
 #sed -i "s/deb/#deb/g" /etc/apt/sources.list
 sed -i '/^#/! s/^/# /' /etc/apt/sources.list
@@ -58,8 +57,8 @@ cd /etc/bind/
 	
 	# Get reversed IP address
 	#REVERSED_IP=$(echo $IP | awk -F. '{print $4"."$3"."$2"."$1}')	# Full 4 octet
-	REVERSED_IP=$(echo $IP | awk -F. '{print $3"."$2"."$1}')	# Only first 3 octet
-	IP_LAST_OCTET=$(echo $IP | awk -F. '{print $4}')
+	REVERSED_IP=$(echo $IP | awk -F. "{print $3'.'$2'.'$1}")	# Only first 3 octet
+	IP_LAST_OCTET=$(echo $IP | awk -F. "{print $4}")
 	
 	if [ $EDIT_KONFIGURASI_BAWAAN = true ]; then
 		# DNS forward
