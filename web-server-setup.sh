@@ -6,6 +6,14 @@ echo "
 ----------------------------------
 "
 
+# Mengecek apakah user login menggunakan user biasa atau user root
+if ! [ $(whoami) = "root" ]; then
+	echo "Login pake user root dulu masbro.."
+	sleep 1
+	loginctl terminate-user $(whoami)
+	#exit 1
+fi
+
 echo "
 Mengedit konfigurasi bawaan service di bawah ini:
 [-] bind9
