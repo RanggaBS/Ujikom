@@ -21,7 +21,7 @@ Mengedit konfigurasi bawaan service di bawah ini:
 	- named.conf.default-zone (/etc/bind/named.conf.default-zone)
 [-] apache2
 	- 000-default.conf (/etc/apache2/000-default.conf)"
-echo -en "\nEdit konfigurasi bawaan? (y/n): "
+echo -n "\nEdit konfigurasi bawaan? (y/n): "
 read EDIT_KONFIGURASI_BAWAAN
 EDIT_KONFIGURASI_BAWAAN=$(echo "$EDIT_KONFIGURASI_BAWAAN" | tr '[:upper:]' '[:lower:]')
 EDIT_KONFIGURASI_BAWAAN=$( [ "$EDIT_KONFIGURASI_BAWAAN" = "y" ] && echo true || echo false )
@@ -60,7 +60,7 @@ apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null
 
 # Configure DNS
 cd /etc/bind/
-	echo "\nMasukkan nama domain: "
+	echo -n "\nMasukkan nama domain: "
 	read DNS;
 	
 	# Get reversed IP address
@@ -141,13 +141,13 @@ cd /etc/apache2/sites-available/
 /sbin/a2dissite 000-default.conf > /dev/null 2>&1
 
 # Prompt user
-echo -en "\n\nMasukkan nama database: "
+echo -n "\n\nMasukkan nama database: "
 read MySQL_DB_NAME
 
-echo -en "\n\nMasukkan nama user MySQL: "
+echo -n "\n\nMasukkan nama user MySQL: "
 read MySQL_USER_NAME
 
-echo -en "\n\nMasukkan password user MySQL: "
+echo -n "\n\nMasukkan password user MySQL: "
 read MySQL_USER_PASSWORD
 
 echo ''
