@@ -9,7 +9,7 @@ echo "
 # Mengecek apakah user login menggunakan user biasa atau user root
 if ! [ $(whoami) = "root" ]; then
 	echo "Login pake user root dulu masbro.."
-	sleep 1
+	sleep 3
 	loginctl terminate-user $(whoami)
 	#exit 1
 fi
