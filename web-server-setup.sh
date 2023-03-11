@@ -33,6 +33,8 @@ deb http://kartolo.sby.datautama.net.id/debian/ buster-updates main contrib non-
 deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main contrib non-free
 " >> /etc/apt/sources.list
 
+#sed -i "" /etc/apt/sources.list
+
 # Get IP address
 echo "\n\nMendapatkan alamat IP.."
 NETWORK_ADAPTER_NAME=$(ip link | awk -F': ' '{print $2}' | grep -v lo)
@@ -53,67 +55,57 @@ apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null
 cd /etc/bind/
 	echo "\nMasukkan nama domain: "
 	read DNS;
-
-	if [ $EDIT_KONFIGURASI_BAWAAN == "true" ]; then
+	
+	# Get reversed IP address
+	#REVERSED_IP=$(echo $IP | awk -F. '{print $4"."$3"."$2"."$1}')	# Full 4 octet
+	REVERSED_IP=$(echo $IP | awk -F. '{print $3"."$2"."$1}')	# Only first 3 octet
+	IP_LAST_OCTET=$(echo $IP | awk -F. '{print $4}')
+	
+	if [ $EDIT_KONFIGURASI_BAWAAN = true ]; then
+		# DNS forward
 		#sed -i '12,14 s/^/;/' /etc/bind/db.local;
 		cp db.local db.local_backup
-		echo "
-;
-; BIND data file for local loopback interface
-;
-\$TTL    604800
-@       IN      SOA     localhost. root.localhost. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@	IN	NS	$DNS.
-@	IN	A	$IP
-" > db.local;
+		
+		sed -i "13 s/.*/@\tIN\tA\t$IP/" db.local
+		sed -i "s/localhost/$DNS/g" db.local
+		
+		# DNS reverse
+		cp db.127 db.127_backup
+		sed -i "s/localhost/$DNS/g" db.127
+		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS" db.127
+		
+		# DNS zone
 		cp named.conf.default-zones named.conf.default-zones_backup
+		
 		sed -i "10 s/.*/zone \"$DNS\" {/" named.conf.default-zones
-		sed -i "15 s/.*/zone \"x.x.x.in-addr.arpa\" {/" named.conf.default-zones	# TODO
+		sed -i "15 s/.*/zone \"$REVERSED_IP.in-addr.arpa\" {/" named.conf.default-zones
+		sed -i "16 s/.*/\ttype master;/" named.conf.default-zones
+		sed -i "17 s/.*/\tfile \"/etc/bind/db.127\";/" named.conf.default-zones
 	else
+		# Create backup file
 		cp db.local db.dns_forward
-
-	echo "
-;
-; BIND data file for local loopback interface
-;
-\$TTL    604800
-@       IN      SOA     localhost. root.localhost. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
-;
-@	IN	NS	$DNS.
-@	IN	A	$IP
-" > db.dns_forward;
-
-	echo "
-//
-// Do any local configuration here
-//
-
-// Consider adding the 1918 zones here, if they are not used in your
-// organization
-//include \"/etc/bind/zones.rfc1918\";
-
-zone \"$DNS\" {
-	type master;
-	file \"/etc/bind/db.dns_forward\";
-};
-	" > named.conf.local
-
-	#sed -i "s/-e//g" named.conf.local
-
+		
+		# DNS forward
+		sed -i "13 s/.*/@\tIN\tA\t$IP/" db.dns_forward
+		sed -i "s/localhost/$DNS/g" db.dns_forward
+		
+		# DNS reverse
+		cp db.127 db.dns_reverse
+		sed -i "s/localhost/$DNS/g" db.dns_reverse
+		sed -i "13 s/.*/$IP_LAST_OCTET\tIN\tPTR\t$DNS" db.dns_reverse
+		
+		# DNS zone
+		echo -e "\n\n\n\n\n\n" >> named.conf.local
+		sed -i "9 s/.*/zone "$DNS" {/" named.conf.local
+		sed -i "10 s/.*/\ttype master;/" named.conf.local
+		sed -i "11 s/.*/\tfile \"/etc/bind/db.dns_forward\";/" named.conf.local
+		sed -i "12 s/.*/};/" named.conf.local
+	fi
+	
+	# Restart bind9 service
 	#service bind9 restart
 	systemctl restart bind9
-
+	
 # Add virtual host
 cd /etc/apache2/sites-available/
 	cp 000-default.conf $DNS.conf
@@ -130,13 +122,13 @@ a2ensite $DNS.conf -q
 a2dissite 000-default.conf -q
 
 # Prompt user
-echo "\n\nMasukkan nama database: "
+echo -en "\n\nMasukkan nama database: "
 read MySQL_DB_NAME
 
-echo "\n\nMasukkan nama user MySQL: "
+echo -en "\n\nMasukkan nama user MySQL: "
 read MySQL_USER_NAME
 
-echo "\n\nMasukkan password user MySQL: "
+echo -en "\n\nMasukkan password user MySQL: "
 read MySQL_USER_PASSWORD
 
 echo ''
@@ -162,6 +154,7 @@ cd /home/Downloads/
 	unzip -q -o wordpress_installer.zip
 	cd wordpress/
 		cp wp-config-sample.php wp-config.php
+		echo "\n\nMengatur database WordPress.."
 		sed -i "s/database_name_here/$MySQL_DB_NAME/g" wp-config.php
 		sed -i "s/username_here/$MySQL_USER_NAME/g" wp-config.php
 		sed -i "s/password_here/$MySQL_USER_PASSWORD/g" wp-config.php
@@ -169,7 +162,7 @@ cd /home/Downloads/
 	if ! [ -d /var/www/wordpress ]; then
 		mkdir /var/www/wordpress
 	fi
-	cp -r -f wordpress/* /var/www/wordpress/
+	cp -r wordpress/* /var/www/wordpress/
 
 # Restart required to apply configuration
 #service restart apache2
