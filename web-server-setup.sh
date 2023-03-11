@@ -133,12 +133,12 @@ cd /etc/apache2/sites-available/
 # Enable the user's virtual host
 #a2ensite $DNS.conf > /dev/null 2>&1
 #a2ensite $DNS.conf -q
-/sbin/a2ensite $DNS	# WORK
+/sbin/a2ensite $DNS > /dev/null 2>&1
 
 # Disable apache default virtual host
 #a2dissite 000-default.conf /dev/null 2>&1
 #a2dissite 000-default.conf -q
-/sbin/a2dissite 000-default.conf	# WORK
+/sbin/a2dissite 000-default.conf > /dev/null 2>&1
 
 # Prompt user
 echo -en "\n\nMasukkan nama database: "
