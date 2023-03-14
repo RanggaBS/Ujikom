@@ -18,9 +18,9 @@ The Linux Server & MikroTik automation script has several features, including:
 
 ## Usage
 ### MikroTik
-Copy the script & run it ```System > Scripts > [+] > (paste in Source box)```
+Copy the script & run it ```System > Scripts > [+] > (paste in Source box)```.
 
 ### Linux Server
 1. Download the script from the GitHub repository ```wget -O script.sh bit.ly/ujikomlinux```.
-1. Run the script ```bash script.sh```.
-1. Follow the instructions displayed on the screen.
+3. Run the script ```bash script.sh```.
+4. Follow the instructions displayed on the screen.
