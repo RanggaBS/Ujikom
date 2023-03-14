@@ -20,6 +20,6 @@ The Linux Server & MikroTik automation script has several features, including:
 To use the Linux Server & MikroTik automation script, users need to follow the following steps:
 1. Download the script from the GitHub repository.
 2. Ensure that all necessary dependencies have been installed.
-3. Open the terminal and run the script with the command ./script.sh.
+3. Open the terminal and run the script with the command ```./script.sh.```
 4. Select the option you want to perform on the main menu.
 5. Follow the instructions displayed on the screen.
