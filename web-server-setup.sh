@@ -23,13 +23,13 @@ Mengedit konfigurasi bawaan service di bawah ini:
 	- named.conf.default-zone (/etc/bind/named.conf.default-zone)
 [-] apache2
 	- 000-default.conf (/etc/apache2/000-default.conf)"
-echo -n "\nEdit konfigurasi bawaan? (y/n): "
+echo -en "\nEdit konfigurasi bawaan? (y/n): "
 read EDIT_KONFIGURASI_BAWAAN
 EDIT_KONFIGURASI_BAWAAN=$(echo "$EDIT_KONFIGURASI_BAWAAN" | tr '[:upper:]' '[:lower:]')
 EDIT_KONFIGURASI_BAWAAN=$( [ "$EDIT_KONFIGURASI_BAWAAN" = "y" ] && echo true || echo false )
 
 # Update repository
-echo "\nMengupdate repository.."
+echo -en "\nMengupdate repository.."
 if ! [ -e /etc/apt/backup_sources.list ]; then
 	cp /etc/apt/sources.list /etc/apt/backup_sources.list;
 fi
@@ -45,24 +45,24 @@ deb http://kartolo.sby.datautama.net.id/debian-security/ buster/updates main con
 #sed -i "" /etc/apt/sources.list
 
 # Get IP address
-echo "\n\nMendapatkan alamat IP.."
+echo -en "\n\nMendapatkan alamat IP.."
 NETWORK_ADAPTER_NAME=$(ip link | awk -F': ' '{print $2}' | grep -v lo)
 IP=$(ip -4 addr show $NETWORK_ADAPTER_NAME | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 
 # Do apt commands
-echo "\n\nMengupdate paket-paket..\n\n\tSabar masbro.."
+echo -en "\n\nMengupdate paket-paket..\n\n\tSabar masbro.."
 apt update > /dev/null 2>&1
 
 #echo "\nUpgrading packages.."
 apt upgrade > /dev/null 2>&1
 
 # Install packages
-echo "\n\nMenginstall:\n- bind9\n- apache2\n- mariadb-server\n- php\n- php-mysql\n- wget\n- unzip\n\n\tSabar maszeh..\n\tJangan di cancel.\n"
+echo -en "\n\nMenginstall:\n- bind9\n- apache2\n- mariadb-server\n- php\n- php-mysql\n- wget\n- unzip\n\n\tSabar maszeh..\n\tJangan di cancel.\n"
 apt install bind9 apache2 mariadb-server php php-mysql wget unzip -y > /dev/null 2>&1
 
 # Configure DNS
 cd /etc/bind/
-	echo -n "\nMasukkan nama domain: "
+	echo -en "\nMasukkan nama domain: "
 	read DNS;
 	
 	# Get reversed IP address
@@ -143,13 +143,13 @@ cd /etc/apache2/sites-available/
 /sbin/a2dissite 000-default.conf > /dev/null 2>&1
 
 # Prompt user
-echo -n "\n\nMasukkan nama database: "
+echo -en "\n\nMasukkan nama database: "
 read MySQL_DB_NAME
 
-echo -n "\n\nMasukkan nama user MySQL: "
+echo -en "\n\nMasukkan nama user MySQL: "
 read MySQL_USER_NAME
 
-echo -n "\n\nMasukkan password user MySQL: "
+echo -en "\n\nMasukkan password user MySQL: "
 read MySQL_USER_PASSWORD
 
 echo ''
@@ -165,17 +165,17 @@ cd /home/
 	fi
 	cd Downloads/
 		if ! [ -e /home/Downloads/wordpress_installer.zip ]; then
-			echo "\n\nMendownload file installer WordPress.."
+			echo -e "\n\nMendownload file installer WordPress.."
 			wget wordpress.org/latest.zip -q --show-progress -O wordpress_installer.zip
 		fi
 
 # Extract WordPress installer file
 cd /home/Downloads/
-	echo "\n\nMengekstrak file installer WordPress.."
+	echo -e "\n\nMengekstrak file installer WordPress.."
 	unzip -q -o wordpress_installer.zip
 	cd wordpress/
 		cp wp-config-sample.php wp-config.php
-		echo "\n\nMengatur database WordPress.."
+		echo -e "\n\nMengatur database WordPress.."
 		sed -i "s/database_name_here/$MySQL_DB_NAME/g" wp-config.php
 		sed -i "s/username_here/$MySQL_USER_NAME/g" wp-config.php
 		sed -i "s/password_here/$MySQL_USER_PASSWORD/g" wp-config.php
