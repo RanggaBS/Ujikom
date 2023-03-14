@@ -5,19 +5,22 @@ The objective of the Linux Server & MikroTik automation project is to simplify u
 
 ## Features
 The Linux Server & MikroTik automation script has several features, including:
-* Operating system configuration
-  * DNS server configuration
-* Package installation
-  * Apache web server installation
-  * MySQL database server installation
-  * PHP installation
-* MikroTik configuration
-  * IP address configuration
-  * Firewall configuration
-  * Hotspot configuration
+### MikroTik
+* IP address configuration
+* DHCP Server configuration
+* Bandwidth limit configuration
+
+### Linux Server
+* BIND DNS Server installation and configuration
+* Apache Web Server installation and configuration
+* MariaDB Server installation and configuration
+* PHP installation
 
 ## Usage
-To use the Linux Server & MikroTik automation script, users need to follow the following steps:
+### MikroTik
+Copy the script & run it ```System > Scripts > [+] > (paste in Source box)```
+
+### Linux Server
 1. Download the script from the GitHub repository ```wget -O script.sh bit.ly/ujikomlinux```.
 1. Run the script ```bash script.sh```.
 1. Follow the instructions displayed on the screen.
